@@ -1,0 +1,243 @@
+# Copyright Business Blockchain www.blockchainempresarial.com. All Rights Reserved.
+# Autor: Ricardo Ruano, ricardo@blockchainempresarial.com
+# Date: 20-08-2020
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+    ################################################################################
+    #   Section: Organizations
+    ################################################################################
+    Organizations:
+    
+        - &OrdererOrg
+            Name: OrdererOrg
+            ID: OrdererMSP
+            MSPDir: crypto-config/ordererOrganizations/angel.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.member')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.member')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.admin')"
+            OrdererEndpoints:
+                - orderer.angel.com:7050
+    
+        - &Patients
+            Name: PatientsMSP
+            ID: PatientsMSP
+            MSPDir: crypto-config/peerOrganizations/patients.angel.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('PatientsMSP.admin', 'PatientsMSP.peer', 'PatientsMSP.client')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('PatientsMSP.admin', 'PatientsMSP.client')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('PatientsMSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('PatientsMSP.peer')"
+            AnchorPeers:
+                - Host: peer0.patients.angel.com
+                  Port: 7051
+    
+        - &Doctors
+            Name: DoctorsMSP
+            ID: DoctorsMSP
+            MSPDir: crypto-config/peerOrganizations/doctors.angel.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('DoctorsMSP.admin', 'DoctorsMSP.peer', 'DoctorsMSP.client')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('DoctorsMSP.admin', 'DoctorsMSP.client')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('DoctorsMSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('DoctorsMSP.peer')"
+            AnchorPeers:
+                - Host: peer0.doctors.angel.com
+                  Port: 7051
+    
+        - &Researchers
+            Name: ResearchersMSP
+            ID: ResearchersMSP
+            MSPDir: crypto-config/peerOrganizations/researchers.angel.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('ResearchersMSP.admin', 'ResearchersMSP.peer', 'ResearchersMSP.client')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('ResearchersMSP.admin', 'ResearchersMSP.client')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('ResearchersMSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('ResearchersMSP.peer')"
+            AnchorPeers:
+                - Host: peer0.researchers.angel.com
+                  Port: 7051
+    ################################################################################
+    #   SECTION: Capabilities
+    ################################################################################
+    Capabilities:
+        Channel: &ChannelCapabilities
+            V2_0: true
+    
+        Orderer: &OrdererCapabilities
+            V2_0: true
+    
+        Application: &ApplicationCapabilities
+            V2_0: true        
+    
+    ################################################################################
+    #   SECTION: Application
+    ################################################################################
+    Application: &ApplicationDefaults
+    
+        # Organizations is the list of orgs which are defined as participants on
+        # the application side of the network
+        Organizations:
+    
+        # Policies defines the set of policies at this level of the config tree
+        # For Application policies, their canonical path is
+        #   /Channel/Application/<PolicyName>
+        Policies:
+            Readers:
+                Type: ImplicitMeta
+                Rule: "ANY Readers"
+            Writers:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+            Admins:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Admins"
+            LifecycleEndorsement:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Endorsement"
+            Endorsement:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Endorsement"
+    
+        Capabilities:
+            <<: *ApplicationCapabilities    
+    
+    ################################################################################
+    #   SECTION: Orderer
+    ################################################################################
+    Orderer: &OrdererDefaults
+        # Orderer Type: The orderer implementation to start
+        OrdererType: solo
+    
+    #    OrdererType: etcdraft
+    
+    #    EtcdRaft:
+    #        Consenters:
+    #        - Host: orderer.acme.com
+    #          Port: 7050
+    #          ClientTLSCert: ../organizations/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls/server.crt
+    #          ServerTLSCert: ../organizations/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls/server.crt
+    
+        Addresses:
+            - orderer.angel.com:7050
+        BatchTimeout: 2s
+        BatchSize:
+            MaxMessageCount: 10
+            AbsoluteMaxBytes: 99 MB
+            PreferredMaxBytes: 512 KB
+    
+    #    Kafka:
+    #        Brokers:
+    #            - 127.0.0.1:9092
+        Organizations:
+    
+        Policies:
+            Readers:
+                Type: ImplicitMeta
+                Rule: "ANY Readers"
+            Writers:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+            Admins:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Admins"
+            # BlockValidation specifies what signatures must be included in the block
+            # from the orderer for the peer to validate it.
+            BlockValidation:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+    
+    ################################################################################
+    #
+    #   CHANNEL
+    #
+    #   This section defines the values to encode into a config transaction or
+    #   genesis block for channel related parameters.
+    #
+    ################################################################################
+    Channel: &ChannelDefaults
+        # Policies defines the set of policies at this level of the config tree
+        # For Channel policies, their canonical path is
+        #   /Channel/<PolicyName>
+        Policies:
+            # Who may invoke the 'Deliver' API
+            Readers:
+                Type: ImplicitMeta
+                Rule: "ANY Readers"
+            # Who may invoke the 'Broadcast' API
+            Writers:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+            # By default, who may modify elements at this config level
+            Admins:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Admins"
+    
+        # Capabilities describes the channel level capabilities, see the
+        # dedicated Capabilities section elsewhere in this file for a full
+        # description
+        Capabilities:
+            <<: *ChannelCapabilities
+    
+    ################################################################################
+    #   Profile
+    ################################################################################
+    Profiles:
+    
+        AngelOrdererGenesis:
+            <<: *ChannelDefaults
+            Orderer:
+                <<: *OrdererDefaults
+                Organizations:
+                    - *OrdererOrg
+                Capabilities:
+                    <<: *OrdererCapabilities
+            Consortiums:
+                MedicalConsortium:
+                    Organizations:
+                        - *Patients
+                        - *Doctors
+                        - *Researchers
+        AngelChannel:
+            Consortium: MedicalConsortium
+            <<: *ChannelDefaults
+            Application:
+                <<: *ApplicationDefaults
+                Organizations:
+                    - *Patients
+                    - *Doctors
+                    - *Researchers
+                Capabilities:
+                    <<: *ApplicationCapabilities
+    
