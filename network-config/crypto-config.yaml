@@ -1,0 +1,41 @@
+# Copyright Business Blockchain www.blockchainempresarial.com. All Rights Reserved.
+# Date: 20-08-2020
+# SPDX-License-Identifier: Apache-2.0
+
+OrdererOrgs:
+    - Name: Orderer
+      Domain: angel.com
+      EnableNodeOUs: true
+      Specs:
+        - Hostname: orderer
+          SANS:
+            - localhost
+PeerOrgs:
+    - Name: Patients
+      Domain: patients.angel.com
+      EnableNodeOUs: true
+      Template:
+        Count: 1
+        SANS:
+          - localhost
+      Users:
+        Count: 1
+    - Name: Doctors
+      Domain: doctors.angel.com
+      EnableNodeOUs: true
+      Template:
+        Count: 1
+        SANS:
+          - localhost
+      Users:
+        Count: 1
+    - Name: Researchers
+      Domain: researchers.angel.com
+      EnableNodeOUs: true    
+      Template:
+        Count: 1
+        SANS:
+          - localhost
+      Users:
+        Count: 1
+  
